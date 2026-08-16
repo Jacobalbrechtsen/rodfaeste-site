@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<title>Bekræfter — Rodfæste.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<style>body{font-family:-apple-system,sans-serif;max-width:640px;margin:60px auto;padding:0 20px;line-height:1.6;color:#222}a{color:#2e7d32}</style>
+</head>
+<body>
+<h1>Rodfæste.</h1>
+<p id="msg">Bekræfter din e-mail — du bliver sendt videre om et øjeblik...</p>
+<p id="fallback" style="display:none">Der mangler oplysninger i linket. Prøv at åbne linket fra mailen igen, eller <a href="/support.html">kontakt support</a>.</p>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('token');
+  var type = params.get('type');
+  var redirectTo = params.get('redirect_to');
+
+  if (!token || !type) {
+    document.getElementById('msg').style.display = 'none';
+    document.getElementById('fallback').style.display = 'block';
+    return;
+  }
+
+  var url = 'https://evxlszgdyxxjrqwohwtx.supabase.co/auth/v1/verify?token=' + encodeURIComponent(token) + '&type=' + encodeURIComponent(type);
+  if (redirectTo) {
+    url += '&redirect_to=' + encodeURIComponent(redirectTo);
+  }
+  window.location.replace(url);
+})();
+</script>
+</body>
+</html>
