@@ -8,7 +8,40 @@
 </head>
 <body>
 <h1>Rodfæste.</h1>
+<div id="standard">
 <p>Din personlige have-assistent til vanding og gødning.</p>
+</div>
+<div id="bekraeftet-signup" style="display:none">
+<p>🌱 Din e-mail er bekræftet — du kan nu logge ind i appen.</p>
+</div>
+<div id="bekraeftet-recovery" style="display:none">
+<p>🌱 Bekræftet — åbn Rodfæste-appen på din telefon for at vælge en ny adgangskode.</p>
+</div>
+<div id="fejl" style="display:none">
+<p>Der opstod desværre en fejl. Prøv at åbne linket fra mailen igen, eller <a href="/support.html">kontakt support</a>.</p>
+</div>
 <p><a href="/support.html">Support</a> · <a href="/privatlivspolitik.html">Privatlivspolitik</a></p>
+<script>
+(function () {
+  var hash = window.location.hash.replace(/^#/, '');
+  if (!hash) return;
+  var params = new URLSearchParams(hash);
+  var accessToken = params.get('access_token');
+  var type = params.get('type');
+  var harFejl = params.has('error');
+
+  if (accessToken) {
+    document.getElementById('standard').style.display = 'none';
+    if (type === 'recovery') {
+      document.getElementById('bekraeftet-recovery').style.display = 'block';
+    } else {
+      document.getElementById('bekraeftet-signup').style.display = 'block';
+    }
+  } else if (harFejl) {
+    document.getElementById('standard').style.display = 'none';
+    document.getElementById('fejl').style.display = 'block';
+  }
+})();
+</script>
 </body>
 </html>
