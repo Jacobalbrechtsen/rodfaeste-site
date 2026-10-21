@@ -10,6 +10,7 @@
 <body>
 <h1>Rodfæste.</h1>
 <p id="msg">Bekræfter din e-mail — du bliver sendt videre om et øjeblik...</p>
+<p id="ok" style="display:none"><strong>Din e-mail er bekræftet ✓</strong><br><span id="ok-tekst"></span></p>
 <p id="fallback" style="display:none">Der mangler oplysninger i linket. Prøv at åbne linket fra mailen igen, eller <a href="/support.html">kontakt support</a>.</p>
 <script>
 (function () {
@@ -28,6 +29,41 @@
   if (redirectTo) {
     url += '&redirect_to=' + encodeURIComponent(redirectTo);
   }
+
+  function visOk(tekst) {
+    document.getElementById('msg').style.display = 'none';
+    document.getElementById('ok-tekst').innerHTML = tekst;
+    document.getElementById('ok').style.display = 'block';
+  }
+
+  // iPadOS udgiver sig for at være en Mac, men har touch.
+  var erTelefon = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  var erOprettelse = (type === 'signup' || type === 'email');
+
+  if (!erTelefon && !erOprettelse) {
+    // Fx nulstilling af adgangskode: skal ske i appen, så linket bruges ikke
+    // her (det kan kun bruges én gang).
+    document.getElementById('msg').innerHTML = 'Det her link skal åbnes på din telefon, hvor Rodfæste er installeret. Åbn mailen på telefonen, og tryk på linket der.';
+    return;
+  }
+
+  if (!erTelefon) {
+    // På en computer findes appen ikke, så vi åbner den ikke (det gav
+    // "adressen er ugyldig" i Safari). Bekræftelsen sker i baggrunden:
+    // serveren registrerer linket, uanset hvor den bagefter vil sende os hen.
+    var faerdig = function () {
+      visOk('Gå tilbage til Rodfæste på din telefon og log ind.<br><br>Kan du ikke logge ind, så åbn linket fra mailen igen, eller <a href="/support.html">kontakt support</a>.');
+    };
+    fetch(url, { mode: 'no-cors' }).then(faerdig, faerdig);
+    return;
+  }
+
+  // På telefonen åbner linket appen. Sker det ikke, skifter teksten efter 3 sek.
+  if (erOprettelse) setTimeout(function () {
+    visOk('Åbn Rodfæste og log ind.<br><br>Kan du ikke logge ind, så åbn linket fra mailen igen, eller <a href="/support.html">kontakt support</a>.');
+  }, 3000);
   window.location.replace(url);
 })();
 </script>
